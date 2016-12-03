@@ -15,8 +15,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 project(${LIBRARY_NAME})
 
-file(GLOB_RECURSE LIB_FILES lib/*)
-file(GLOB_RECURSE INCLUDE_FILES include/*)
+file(GLOB_RECURSE SRC_FILES src/*)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
@@ -28,7 +27,7 @@ link_directories(
     ${PROJECT_SOURCE_DIR}/vendors/lib
 )
 
-add_library(${LIBRARY_NAME} ${LIB_FILES} ${INCLUDE_FILES})
+add_library(${LIBRARY_NAME} ${SRC_FILES})
 
 # ==== TESTS ====
 
