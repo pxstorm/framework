@@ -18,7 +18,16 @@ project(${LIBRARY_NAME})
 file(GLOB_RECURSE LIB_FILES lib/*)
 file(GLOB_RECURSE INCLUDE_FILES include/*)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/vendors/include
+)
+
+link_directories(
+    ${EXECUTABLE_OUTPUT_PATH}
+    ${PROJECT_SOURCE_DIR}/vendors/lib
+)
+
 add_library(${LIBRARY_NAME} ${LIB_FILES} ${INCLUDE_FILES})
 
 # ==== TESTS ====
