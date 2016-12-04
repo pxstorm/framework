@@ -1,7 +1,9 @@
 #include <iostream>
-#include "test.h"
+#include "core/shader_builder.h"
 
 int main() {
-    std::cout << abc(2) << std::endl;
+    pxs::ShaderBuilder x;
+
+    std::cout << "abc" << std::endl;
     return 0;
 }
