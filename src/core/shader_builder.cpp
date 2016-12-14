@@ -5,18 +5,16 @@
 #include <cstdio>
 
 pxs::ShaderBuilder::ShaderBuilder() {
-    this->glProgram = nullptr;
+    this->glProgram = GL_NULL;
 }
 
 pxs::ShaderBuilder &pxs::ShaderBuilder::attach(const char *path, pxs::Shader::Type type) {
-    if(glProgram == nullptr) {
+    if(glProgram == GL_NULL) {
         glProgram = glCreateProgram();
-        assert(glProgram != nullptr && "Method glCreateProgram return null.");
+        assert(glProgram != GL_NULL && "Method glCreateProgram return null.");
     }
 
-    // FIXME: Read file source
-    const GLchar* source = nullptr;
-
+    ShaderSource source = readFile(path);
     GLuint shader = compile(source, type);
     glAttachShader(glProgram, shader);
 
@@ -34,17 +32,17 @@ pxs::ShaderBuilder &pxs::ShaderBuilder::detachAll() {
 }
 
 
-ptr<Shader> pxs::ShaderBuilder::build() {
-    assert(glProgram != nullptr && "Attach sources before building shader.");
+pxs::Shader::ptr pxs::ShaderBuilder::build() {
+    assert(glProgram != GL_NULL && "Attach sources before building shader.");
 
     // Build shader program from attached shader sources
     link();
 
-    ptr<Shader> result = std::make_shared<Shader>(glProgram);
+    Shader::ptr result = std::make_shared<Shader>(glProgram);
 
     // We cannot call dispose method, because shader class will manage
     // OpenGL object instance and dispose when no more needed
-    glProgram = nullptr;
+    glProgram = GL_NULL;
 
     // We can detach shader, because they'll be destroyed only when
     // all program that they belongs to are destroyed
@@ -57,16 +55,34 @@ pxs::ShaderBuilder::~ShaderBuilder() {
     dispose();
 }
 
-GLuint pxs::ShaderBuilder::compile(const GLchar* source, pxs::Shader::Type type) {
-    GLint length = (GLint) strlen(source);
-    const GLchar* content = source;
-    assert(length > 0 && "Empty shader source given.");
+pxs::ShaderBuilder::ShaderSource pxs::ShaderBuilder::readFile(const char *path) {
+    ShaderSource source;
+
+    FILE* file = fopen(path, "r");
+    assert(file != NULL && fprintf(stderr, "Cannot open file '%s'.", path));
+
+    // Set cursor at the end of file to read length
+    fseek(file, 0, SEEK_END);
+    source.length = ftell(file);
+
+    // Set cursor back at the beginning and read whole file
+    fseek(file, 0, SEEK_SET);
+    source.content = new char[source.length + 1];
+    size_t err = fread(source.content, (size_t) source.length, 1, file);
+    assert(err == 1 && fprintf(stderr, "Error reading content of the file '%s' (%u bytes).", path, source.length));
+
+    fclose(file);
+    return source;
+}
+
+GLuint pxs::ShaderBuilder::compile(const ShaderSource source, pxs::Shader::Type type) {
+    assert(source.length > 0 && "Empty shader source given.");
 
     // Create shader and copy source
     GLuint shader = glCreateShader(type);
-    assert(shader != nullptr && "Method glCreateShader return null.");
+    assert(shader != GL_NULL && "Method glCreateShader return null.");
 
-    glShaderSource(shader, 1, &content, &length);
+    glShaderSource(shader, 1, (const GLchar* const*) &(source.content), &(source.length));
 
     // Compile and validate
     GLint param;
@@ -81,7 +97,7 @@ GLuint pxs::ShaderBuilder::compile(const GLchar* source, pxs::Shader::Type type)
         fprintf(stderr, "%s\n", &log[0]);
 
         glDeleteShader(shader);
-        assert(false && "Shader compilation failed.");
+        assert(false && fprintf(stderr, "Shader compilation error: %s.", log));
     }
 
     glShaders.push_back(shader);
@@ -109,15 +125,16 @@ void pxs::ShaderBuilder::link() {
         glGetProgramInfoLog(glProgram, param, NULL, &(log[0]));
         fprintf(stderr, "%s\n", &log[0]);
 
-        assert(false && "Linking shader program error.");
+        assert(false && fprintf(stderr, "Linking shader program error: %s.", log));
     }
 }
 
 void pxs::ShaderBuilder::dispose() {
     detachAll();
 
-    if(glProgram != nullptr) {
+    if(glProgram != GL_NULL) {
+        assert(false && "Redundant usage of ShaderBuilder, compiled shader(s) is not used.");
         glDeleteProgram(glProgram);
-        glProgram = nullptr;
+        glProgram = GL_NULL;
     }
 }

@@ -6,6 +6,8 @@
 namespace pxs {
     class ShaderBuilder {
     public:
+        static const GLuint GL_NULL;
+
         ShaderBuilder();
 
         /**
@@ -19,27 +21,35 @@ namespace pxs {
         virtual ShaderBuilder &attach(const char *path, Shader::Type type);
 
         /**
-         * Destroy all attached sources
-         * and remove it from the building queue.
-         *
-         * @return
-         */
-        virtual ShaderBuilder &detachAll();
-
-        /**
          * Get shader instance from attached sources
          * (also clean builder by detaching all sources).
          *
          * @return
          */
-        virtual ptr<Shader> build();
+        virtual Shader::ptr build();
 
         virtual ~ShaderBuilder();
 
     protected:
+        /**
+         * Initialized with first `attach` method call.
+         */
         GLuint glProgram;
 
         std::vector<GLuint> glShaders;
+
+        struct ShaderSource {
+            GLchar* content;
+            GLint length;
+        };
+
+        /**
+         * Get file length and content.
+         *
+         * @param path
+         * @return
+         */
+        virtual ShaderSource readFile(const char *path);
 
         /**
          * Compile shader source.
@@ -48,12 +58,20 @@ namespace pxs {
          * @param type
          * @return OpenGL shader object identifier.
          */
-        virtual GLuint compile(const GLchar *source, Shader::Type type);
+        virtual GLuint compile(const ShaderSource source, Shader::Type type);
 
         /**
          * Create program from linked sources.
          */
         virtual void link();
+
+        /**
+         * Destroy all attached sources
+         * and remove it from the building queue.
+         *
+         * @return
+         */
+        virtual ShaderBuilder &detachAll();
 
         /**
          * Destroy program and attached shaders.

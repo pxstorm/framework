@@ -1,10 +1,13 @@
 #pragma once
 
+#include <memory>
 #include "core/shader_variable.h"
 
 namespace pxs {
     class Shader {
     public:
+        typedef std::shared_ptr<Shader> ptr;
+
         enum Type {
             Vertex = GL_VERTEX_SHADER,
             TessControl = GL_TESS_CONTROL_SHADER,
