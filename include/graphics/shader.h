@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "core/shader_variable.h"
+#include "shader_variable.h"
 
 namespace pxs {
     class Shader {

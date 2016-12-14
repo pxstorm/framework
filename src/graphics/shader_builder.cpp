@@ -1,6 +1,6 @@
-#include "core/shader_builder.h"
+#include "core/directives.h"
+#include "graphics/shader_builder.h"
 
-#include <cassert>
 #include <cstring>
 #include <cstdio>
 
@@ -11,7 +11,7 @@ pxs::ShaderBuilder::ShaderBuilder() {
 pxs::ShaderBuilder &pxs::ShaderBuilder::attach(const char *path, pxs::Shader::Type type) {
     if(glProgram == GL_NULL) {
         glProgram = glCreateProgram();
-        assert(glProgram != GL_NULL && "Method glCreateProgram return null.");
+        EXPECT(glProgram != GL_NULL, "Method glCreateProgram return null.");
     }
 
     ShaderSource source = readFile(path);
@@ -33,7 +33,7 @@ pxs::ShaderBuilder &pxs::ShaderBuilder::detachAll() {
 
 
 pxs::Shader::ptr pxs::ShaderBuilder::build() {
-    assert(glProgram != GL_NULL && "Attach sources before building shader.");
+    EXPECT(glProgram != GL_NULL, "Attach sources before building shader.");
 
     // Build shader program from attached shader sources
     link();
@@ -41,11 +41,11 @@ pxs::Shader::ptr pxs::ShaderBuilder::build() {
     Shader::ptr result = std::make_shared<Shader>(glProgram);
 
     // We cannot call dispose method, because shader class will manage
-    // OpenGL object instance and dispose when no more needed
+    // OpenGL object instance and dispose when no more needed.
     glProgram = GL_NULL;
 
     // We can detach shader, because they'll be destroyed only when
-    // all program that they belongs to are destroyed
+    // all program that they belongs to are destroyed.
     detachAll();
 
     return result;
@@ -59,7 +59,7 @@ pxs::ShaderBuilder::ShaderSource pxs::ShaderBuilder::readFile(const char *path) 
     ShaderSource source;
 
     FILE* file = fopen(path, "r");
-    assert(file != NULL && fprintf(stderr, "Cannot open file '%s'.", path));
+    EXPECT(file != NULL, "Cannot open file '%s'.", path);
 
     // Set cursor at the end of file to read length
     fseek(file, 0, SEEK_END);
@@ -68,19 +68,19 @@ pxs::ShaderBuilder::ShaderSource pxs::ShaderBuilder::readFile(const char *path) 
     // Set cursor back at the beginning and read whole file
     fseek(file, 0, SEEK_SET);
     source.content = new char[source.length + 1];
-    size_t err = fread(source.content, (size_t) source.length, 1, file);
-    assert(err == 1 && fprintf(stderr, "Error reading content of the file '%s' (%u bytes).", path, source.length));
+    size_t status = fread(source.content, (size_t) source.length, 1, file);
+    EXPECT(status == 1, "Error reading content of the file '%s' (%u bytes).", path, source.length);
 
     fclose(file);
     return source;
 }
 
 GLuint pxs::ShaderBuilder::compile(const ShaderSource source, pxs::Shader::Type type) {
-    assert(source.length > 0 && "Empty shader source given.");
+    EXPECT(source.length > 0, "Empty shader source given.");
 
     // Create shader and copy source
     GLuint shader = glCreateShader(type);
-    assert(shader != GL_NULL && "Method glCreateShader return null.");
+    EXPECT(shader != GL_NULL, "Method glCreateShader return null.");
 
     glShaderSource(shader, 1, (const GLchar* const*) &(source.content), &(source.length));
 
@@ -91,13 +91,10 @@ GLuint pxs::ShaderBuilder::compile(const ShaderSource source, pxs::Shader::Type 
     glGetShaderiv(shader, GL_COMPILE_STATUS, &param);
     if (param != GL_TRUE) {
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &param);
-        std::vector<GLchar> log((uint) param);
+        std::vector<GLchar> log((unsigned) param);
 
         glGetShaderInfoLog(shader, param, NULL, &(log[0]));
-        fprintf(stderr, "%s\n", &log[0]);
-
-        glDeleteShader(shader);
-        assert(false && fprintf(stderr, "Shader compilation error: %s.", log));
+        UNEXPECTED("Shader compilation error: %s.", log);
     }
 
     glShaders.push_back(shader);
@@ -120,12 +117,10 @@ void pxs::ShaderBuilder::link() {
     // Check for errors
     if (param != GL_TRUE) {
         glGetProgramiv(glProgram, GL_INFO_LOG_LENGTH, &param);
-        std::vector<GLchar> log((uint) param);
+        std::vector<GLchar> log((unsigned) param);
 
         glGetProgramInfoLog(glProgram, param, NULL, &(log[0]));
-        fprintf(stderr, "%s\n", &log[0]);
-
-        assert(false && fprintf(stderr, "Linking shader program error: %s.", log));
+        UNEXPECTED("Linking shader program error: %s.", log);
     }
 }
 
@@ -133,7 +128,7 @@ void pxs::ShaderBuilder::dispose() {
     detachAll();
 
     if(glProgram != GL_NULL) {
-        assert(false && "Redundant usage of ShaderBuilder, compiled shader(s) is not used.");
+        UNEXPECTED("Redundant usage of ShaderBuilder, compiled shader(s) is not used.");
         glDeleteProgram(glProgram);
         glProgram = GL_NULL;
     }

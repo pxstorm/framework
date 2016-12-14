@@ -1,6 +1,5 @@
-#include "core/shader.h"
-
-#include <cassert>
+#include "core/directives.h"
+#include "graphics/shader.h"
 
 pxs::Shader::Shader(GLuint glProgram) {
     this->glProgram = glProgram;
@@ -8,14 +7,14 @@ pxs::Shader::Shader(GLuint glProgram) {
 
 pxs::ShaderVariable pxs::Shader::findAttribute(const GLchar *name) const {
     GLint location = glGetAttribLocation(glProgram, name);
-    assert(location != -1 && "Cannot find attribute with the given name.");
+    EXPECT(location != ShaderVariable::INVALID_LOCATION, "Cannot find attribute with the given name.");
 
     return pxs::ShaderVariable(location);
 }
 
 pxs::ShaderVariable pxs::Shader::findUniform(const GLchar *name) const {
     GLint location = glGetUniformLocation(glProgram, name);
-    assert(location != -1 && "Cannot find uniform with the given name.");
+    EXPECT(location != ShaderVariable::INVALID_LOCATION, "Cannot find uniform with the given name.");
 
     return pxs::ShaderVariable(location);
 }
