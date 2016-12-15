@@ -1,4 +1,4 @@
-#include "graphics/shader_variable.h"
+#include "pxs/graphics/shader_variable.h"
 
 pxs::ShaderVariable::ShaderVariable(GLint glVariable) {
     this->glVariable = glVariable;

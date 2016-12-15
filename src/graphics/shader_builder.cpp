@@ -1,5 +1,5 @@
-#include "core/directives.h"
-#include "graphics/shader_builder.h"
+#include "pxs/core/directives.h"
+#include "pxs/graphics/shader_builder.h"
 
 #include <cstring>
 #include <cstdio>

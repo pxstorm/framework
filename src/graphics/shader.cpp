@@ -1,5 +1,5 @@
-#include "core/directives.h"
-#include "graphics/shader.h"
+#include "pxs/core/directives.h"
+#include "pxs/graphics/shader.h"
 
 pxs::Shader::Shader(GLuint glProgram) {
     this->glProgram = glProgram;
