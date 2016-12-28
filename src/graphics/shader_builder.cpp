@@ -91,10 +91,11 @@ GLuint pxs::ShaderBuilder::compile(const ShaderSource source, pxs::Shader::Type 
     glGetShaderiv(shader, GL_COMPILE_STATUS, &param);
     if (param != GL_TRUE) {
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &param);
-        std::vector<GLchar> log((unsigned) param);
+        GLchar* logMessage = new GLchar[param];
 
-        glGetShaderInfoLog(shader, param, NULL, &(log[0]));
-        UNEXPECTED("Shader compilation error: %s.", log);
+        glGetShaderInfoLog(shader, param, NULL, logMessage);
+        UNEXPECTED("Shader compilation error: %s.", logMessage);
+        delete[] logMessage;
     }
 
     glShaders.push_back(shader);
@@ -117,10 +118,11 @@ void pxs::ShaderBuilder::link() {
     // Check for errors
     if (param != GL_TRUE) {
         glGetProgramiv(glProgram, GL_INFO_LOG_LENGTH, &param);
-        std::vector<GLchar> log((unsigned) param);
+        GLchar* logMessage = new GLchar[param];
 
-        glGetProgramInfoLog(glProgram, param, NULL, &(log[0]));
-        UNEXPECTED("Linking shader program error: %s.", log);
+        glGetProgramInfoLog(glProgram, param, NULL, logMessage);
+        UNEXPECTED("Linking shader program error: %s.", logMessage);
+        delete[] logMessage;
     }
 }
 

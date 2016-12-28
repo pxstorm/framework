@@ -6,7 +6,7 @@
 namespace pxs {
     class ShaderBuilder {
     public:
-        static const GLuint GL_NULL;
+        static const GLuint GL_NULL = 0;
 
         ShaderBuilder();
 
@@ -79,4 +79,3 @@ namespace pxs {
         virtual void dispose();
     };
 }
-
