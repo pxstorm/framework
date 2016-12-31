@@ -1,6 +1,6 @@
-PXStorm Framework
-=================
-
+---
+title: PXStorm Framework
+---
 Table of Content:
 
-- [Shaders](/shaders)
+- [Shaders](shaders)

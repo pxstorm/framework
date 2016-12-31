@@ -1,3 +1,6 @@
+---
+title: Shaders
+---
 Shaders
 =======
 
@@ -23,7 +26,7 @@ sb.attach("resources/shaders/basic.fs", pxs::Shader::Fragment);
 Then you can use `build` method which link previously attached shaders.
 
 ```cpp
-Shader::ptr basic = sb.build();
+pxs::Shader::ptr basic = sb.build();
 ```
 
 This method also detach all previously attached shaders. If you would like to build another shader with the same vertex shader source then you have to attach it again:
