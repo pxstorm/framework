@@ -1,6 +1,4 @@
----
-title: PXStorm Framework
----
-Table of Content:
+Table of Content
+================
 
 - [Shaders](shaders)
