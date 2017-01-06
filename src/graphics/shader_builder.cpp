@@ -68,8 +68,9 @@ pxs::ShaderBuilder::ShaderSource pxs::ShaderBuilder::readFile(const char *path) 
     // Set cursor back at the beginning and read whole file
     fseek(file, 0, SEEK_SET);
     source.content = new char[source.length + 1];
-    size_t status = fread(source.content, (size_t) source.length, 1, file);
-    EXPECT(status == 1, "Error reading content of the file '%s' (%u bytes).", path, source.length);
+
+    size_t status = fread(source.content, sizeof(char), (size_t) source.length, file);
+    EXPECT(status == source.length, "Error reading content of the file '%s' (%u of %u bytes read).", path, status, source.length);
 
     fclose(file);
     return source;
@@ -82,7 +83,7 @@ GLuint pxs::ShaderBuilder::compile(const ShaderSource source, pxs::Shader::Type 
     GLuint shader = glCreateShader(type);
     EXPECT(shader != GL_NULL, "Method glCreateShader return null.");
 
-    glShaderSource(shader, 1, (const GLchar* const*) &(source.content), &(source.length));
+    glShaderSource(shader, 1, (const GLchar**) &(source.content), &(source.length));
 
     // Compile and validate
     GLint param;
